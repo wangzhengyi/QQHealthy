@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         qq:lineColor="#0de26d"
-        qq:titleColor="#1222da"
+        qq:titleColor="#bed719"
         qq:titleSize="50sp"/>
 
 </RelativeLayout>

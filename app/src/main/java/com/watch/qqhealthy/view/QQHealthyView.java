@@ -9,6 +9,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 
 import com.watch.qqhealthy.R;
@@ -17,6 +18,7 @@ public class QQHealthyView extends View {
     private static final int BG_START_ANGLE = 120;
     private static final int BG_SWEEP_ANGLE = 300;
     private static final int MARGIN = 20;
+    private static final String TAG = "zhengyi.wzy";
     private int mTextColor = Color.BLACK;
     private int mLineColor = Color.BLACK;
 
@@ -60,12 +62,30 @@ public class QQHealthyView extends View {
      */
     private float mProgress = 30;
 
+    /**
+     * 步数画笔
+     */
     private Paint mWalkNumPaint;
+
+    /**
+     * 其它文字画笔
+     */
+    private Paint mOtherTextPaint;
 
     /**
      * 走路步数
      */
     private int mWalkNum = 1000;
+
+    /**
+     * 名次画笔.
+     */
+    private Paint mRankingPaint;
+
+    /**
+     * 用户排名
+     */
+    private int mRankNum = 1;
 
     public QQHealthyView(Context context) {
         this(context, null);
@@ -120,6 +140,16 @@ public class QQHealthyView extends View {
         mWalkNumPaint.setTextSize(120);
         mWalkNumPaint.setColor(mTextColor);
         mWalkNumPaint.setTextAlign(Paint.Align.CENTER);
+
+        mRankingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mRankingPaint.setTextSize(50);
+        mRankingPaint.setColor(mTextColor);
+        mRankingPaint.setTextAlign(Paint.Align.CENTER);
+
+        mOtherTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mOtherTextPaint.setTextSize(30);
+        mOtherTextPaint.setColor(Color.RED);
+        mOtherTextPaint.setTextAlign(Paint.Align.CENTER);
     }
 
     @Override
@@ -169,6 +199,7 @@ public class QQHealthyView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        Log.e(TAG, "onDraw: is here");
         drawBackground(canvas);
         drawArcAndText(canvas);
     }
@@ -181,9 +212,37 @@ public class QQHealthyView extends View {
         canvas.drawArc(mArcRectF, BG_START_ANGLE, mProgress, false, mArcProgressPaint);
 
         // 绘制圈内数字
+        drawWalkNum(canvas);
+
+        // 绘制名次
+        drawRank(canvas);
+    }
+
+    private void drawRank(Canvas canvas) {
+        Log.e(TAG, "drawRank: is here!");
+        Paint.FontMetricsInt fm = mRankingPaint.getFontMetricsInt();
+        float baselineY = (float) (mWidth * 3.0 / 4 - (fm.ascent + fm.descent) / 2);
+        canvas.drawText("第" + String.valueOf(mRankNum) + "名",
+                mWidth / 2, baselineY, mRankingPaint);
+    }
+
+    private void drawWalkNum(Canvas canvas) {
+        // 绘制中间的文本
         Paint.FontMetricsInt fm = mWalkNumPaint.getFontMetricsInt();
         float baselineY = mWidth / 2 - (fm.descent + fm.ascent) / 2;
         canvas.drawText(String.valueOf(mWalkNum), mWidth / 2, baselineY, mWalkNumPaint);
+
+        Paint.FontMetricsInt otherFm = mOtherTextPaint.getFontMetricsInt();
+        // 绘制上面的文本
+        float top = baselineY + fm.ascent;
+        float topBaseLineY = top - otherFm.descent- 20;
+        canvas.drawText("截止21:30已走", mWidth / 2, topBaseLineY, mOtherTextPaint);
+
+        // 绘制下面的文本
+        float bottom = baselineY + fm.descent;
+        float btmBaseLineY = bottom - fm.ascent;
+        canvas.drawText("好友平均步数1000步", mWidth / 2, btmBaseLineY, mOtherTextPaint);
+
     }
 
     private void drawBackground(Canvas canvas) {
